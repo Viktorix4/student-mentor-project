@@ -114,41 +114,106 @@ class Reviewer(Mentor):
                 f'Фамилия: {self.surname}')
 
 
-# --- Примеры использования (для проверки) ---
+# === ФУНКЦИИ ДЛЯ ЗАДАНИЯ №4 ===
+
+def average_grade_students(students, course):
+    """Средняя оценка за домашние задания по курсу среди студентов."""
+    all_grades = []
+    for student in students:
+        if isinstance(student, Student) and course in student.grades:
+            all_grades.extend(student.grades[course])
+    if not all_grades:
+        return 0.0
+    return round(sum(all_grades) / len(all_grades), 1)
+
+
+def average_grade_lecturers(lecturers, course):
+    """Средняя оценка за лекции по курсу среди лекторов."""
+    all_grades = []
+    for lecturer in lecturers:
+        if isinstance(lecturer, Lecturer) and course in lecturer.grades:
+            all_grades.extend(lecturer.grades[course])
+    if not all_grades:
+        return 0.0
+    return round(sum(all_grades) / len(all_grades), 1)
+
+
+# === ПОЛЕВЫЕ ИСПЫТАНИЯ ===
+
 if __name__ == '__main__':
-    # Студент
-    student = Student('Ruoy', 'Eman', 'your_gender')
-    student.courses_in_progress += ['Python', 'Git']
-    student.finished_courses += ['Введение в программирование']
+    # --- Создание экземпляров ---
 
-    # Лектор
-    lecturer = Lecturer('Some', 'Buddy')
-    lecturer.courses_attached += ['Python']
-    student.rate_lecture(lecturer, 'Python', 10)
-    student.rate_lecture(lecturer, 'Python', 9)
+    # Студенты
+    student1 = Student('Алиса', 'Селезнёва', 'женский')
+    student1.courses_in_progress += ['Python', 'Git']
+    student1.finished_courses += ['Введение в программирование']
 
-    # Проверяющий
-    reviewer = Reviewer('Cool', 'Mentor')
-    reviewer.courses_attached += ['Python']
-    reviewer.rate_hw(student, 'Python', 10)
-    reviewer.rate_hw(student, 'Python', 9)
+    student2 = Student('Владимир', 'Путин', 'мужской')
+    student2.courses_in_progress += ['Python', 'C++']
+    student2.finished_courses += ['Алгоритмы']
 
-    # Вывод через __str__
-    print(reviewer)
+    # Лекторы
+    lecturer1 = Lecturer('Анна', 'Петрова')
+    lecturer1.courses_attached += ['Python', 'Git']
+
+    lecturer2 = Lecturer('Сергей', 'Сидоров')
+    lecturer2.courses_attached += ['Python', 'C++']
+
+    # Проверяющие
+    reviewer1 = Reviewer('Иван', 'Иванов')
+    reviewer1.courses_attached += ['Python']
+
+    reviewer2 = Reviewer('Мария', 'Козлова')
+    reviewer2.courses_attached += ['Git', 'C++']
+
+    # --- Выставление оценок ---
+
+    # Проверяющие оценивают студентов
+    reviewer1.rate_hw(student1, 'Python', 10)
+    reviewer1.rate_hw(student1, 'Python', 9)
+    reviewer1.rate_hw(student2, 'Python', 8)
+
+    reviewer2.rate_hw(student1, 'Git', 10)
+    reviewer2.rate_hw(student2, 'C++', 7)
+
+    # Студенты оценивают лекторов
+    student1.rate_lecture(lecturer1, 'Python', 10)
+    student1.rate_lecture(lecturer1, 'Git', 9)
+    student2.rate_lecture(lecturer1, 'Python', 8)  # ошибка: student2 не учится на Git
+    student2.rate_lecture(lecturer2, 'Python', 9)
+    student2.rate_lecture(lecturer2, 'C++', 7)
+
+    # --- Вывод через __str__ ---
+    print("=== ПРОВЕРЯЮЩИЕ ===")
+    print(reviewer1)
     print()
-    print(lecturer)
+    print(reviewer2)
+    print("\n=== ЛЕКТОРЫ ===")
+    print(lecturer1)
     print()
-    print(student)
+    print(lecturer2)
+    print("\n=== СТУДЕНТЫ ===")
+    print(student1)
     print()
+    print(student2)
 
-    # Сравнение
-    student2 = Student('Jane', 'Doe', 'female')
-    student2.courses_in_progress += ['Python']
-    reviewer.rate_hw(student2, 'Python', 8)
+    # --- Сравнение ---
+    print("\n=== СРАВНЕНИЕ ===")
+    print(f"Студент {student1.name} < {student2.name}? {student1 < student2}")
+    print(f"Лектор {lecturer1.name} > {lecturer2.name}? {lecturer1 > lecturer2}")
 
-    lecturer2 = Lecturer('Ivan', 'Ivanov')
-    lecturer2.courses_attached += ['Python']
-    student2.rate_lecture(lecturer2, 'Python', 7)
+    # --- Функции по курсам ---
+    print("\n=== СРЕДНИЕ ОЦЕНКИ ПО КУРСАМ ===")
+    students_list = [student1, student2]
+    lecturers_list = [lecturer1, lecturer2]
 
-    print(f'Студент {student.name} < {student2.name}? {student < student2}')  # False
-    print(f'Лектор {lecturer.name} > {lecturer2.name}? {lecturer > lecturer2}')  # True
+    print(f"Средняя оценка студентов по курсу 'Python': "
+          f"{average_grade_students(students_list, 'Python')}")
+    print(f"Средняя оценка студентов по курсу 'Git': "
+          f"{average_grade_students(students_list, 'Git')}")
+    print(f"Средняя оценка лекторов по курсу 'Python': "
+          f"{average_grade_lecturers(lecturers_list, 'Python')}")
+    print(f"Средняя оценка лекторов по курсу 'C++': "
+          f"{average_grade_lecturers(lecturers_list, 'C++')}")
+    print(f"Средняя оценка лекторов по курсу 'Java' (нет оценок): "
+          f"{average_grade_lecturers(lecturers_list, 'Java')}")

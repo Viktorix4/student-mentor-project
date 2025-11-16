@@ -9,6 +9,19 @@ class Student:
         self.courses_in_progress = []
         self.grades = {}
 
+    def rate_lecture(self, lecturer, course, grade):
+        """Выставляет оценку лектору за лекцию по курсу."""
+        if (isinstance(lecturer, Lecturer)
+                and course in lecturer.courses_attached
+                and course in self.courses_in_progress
+                and 1 <= grade <= 10):
+            if course in lecturer.grades:
+                lecturer.grades[course] += [grade]
+            else:
+                lecturer.grades[course] = [grade]
+        else:
+            return 'Ошибка'
+
 
 class Mentor:
     """Родительский класс для преподавателей."""
@@ -20,17 +33,22 @@ class Mentor:
 
 
 class Lecturer(Mentor):
-    """Класс для лекторов — наследуется от Mentor."""
-    pass
+    """Класс лектора — наследуется от Mentor."""
+
+    def __init__(self, name, surname):
+        super().__init__(name, surname)
+        self.grades = {}
 
 
 class Reviewer(Mentor):
-    """Класс для экспертов, проверяющих домашние задания."""
+    """Класс эксперта, проверяющего домашние задания."""
 
     def rate_hw(self, student, course, grade):
+        """Выставляет студенту оценку за домашнее задание."""
         if (isinstance(student, Student)
                 and course in self.courses_attached
-                and course in student.courses_in_progress):
+                and course in student.courses_in_progress
+                and 1 <= grade <= 10):
             if course in student.grades:
                 student.grades[course] += [grade]
             else:
@@ -39,24 +57,18 @@ class Reviewer(Mentor):
             return 'Ошибка'
 
 
-# Проверка наследования согласно заданию
+# --- Проверка по условию задания №2 ---
 lecturer = Lecturer('Иван', 'Иванов')
 reviewer = Reviewer('Пётр', 'Петров')
+student = Student('Алёхина', 'Ольга', 'Ж')
 
-print(isinstance(lecturer, Mentor))  # True
-print(isinstance(reviewer, Mentor))  # True
-print(lecturer.courses_attached)    # []
-print(reviewer.courses_attached)    # []
+student.courses_in_progress += ['Python', 'Java']
+lecturer.courses_attached += ['Python', 'C++']
+reviewer.courses_attached += ['Python', 'C++']
 
-# Дополнительная проверка работы Reviewer
-best_student = Student('Ruoy', 'Eman', 'your_gender')
-best_student.courses_in_progress += ['Python']
+print(student.rate_lecture(lecturer, 'Python', 7))   # None
+print(student.rate_lecture(lecturer, 'Java', 8))     # Ошибка
+print(student.rate_lecture(lecturer, 'С++', 8))      # Ошибка
+print(student.rate_lecture(reviewer, 'Python', 6))   # Ошибка
 
-cool_reviewer = Reviewer('Some', 'Buddy')
-cool_reviewer.courses_attached += ['Python']
-
-cool_reviewer.rate_hw(best_student, 'Python', 10)
-cool_reviewer.rate_hw(best_student, 'Python', 10)
-cool_reviewer.rate_hw(best_student, 'Python', 10)
-
-print(best_student.grades)  # {'Python': [10, 10, 10]}
+print(lecturer.grades)  # {'Python': [7]}
